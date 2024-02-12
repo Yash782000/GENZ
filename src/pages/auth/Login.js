@@ -1,105 +1,83 @@
-import { useEffect, useState } from "react";
-import styles from "./auth.module.scss";
-import loginImg from "../../assets/login.png";
-import { Link, useNavigate } from "react-router-dom";
-import Card from "../../components/card/Card";
-import { toast } from "react-toastify";
-import Loader from "../../components/loader/Loader";
-import { useDispatch, useSelector } from "react-redux";
-import { RESET_AUTH, login } from "../../redux/features/auth/authSlice";
-import { validateEmail } from "../../redux/features/auth/authService";
-import { useSearchParams } from "react-router-dom";
-import { getCartDB, saveCartDB } from "../../redux/features/product/cartSlice";
+import React, { useEffect, useState } from 'react'
+import styles from "./auth.module.scss"
+import loginImg from  "../../assets/login.png"
+import { Link, useNavigate } from 'react-router-dom'
+import Card from '../../components/card/Card'
+import { validateEmail } from '../../utlis'
+import {toast} from "react-toastify"
+import { useDispatch, useSelector } from 'react-redux'
+import Loader from '../../components/loader/Loader'
+import { RESET_AUTH, login } from '../../redux/features/auth/authSlice'
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { isLoggedIn, isLoading, isSuccess } = useSelector(
-    (state) => state.auth
-  );
-  const [urlParams] = useSearchParams();
-  console.log(urlParams.get("redirect"));
-  const redirect = urlParams.get("redirect");
-
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const loginUser = async (e) => {
-    e.preventDefault();
-    if (!email || !password) {
-      return toast.error("All fields are required");
+    const dispatch  = useDispatch();
+    const navigate = useNavigate();
+    const {isLoading,isLoggedIn,isSuccess} = useSelector((state)=>state.auth);
+    const [email,setEmail] = useState("");
+    const [password,setPassword] = useState("")
+    const loginUser = async (e) =>{
+        e.preventDefault();
+        //Validation Check
+        if(!email || !password){
+            toast.error("all fields required")
+        } 
+        if(password.length<6){
+            toast.error("Password must have more than 6 characters")
+        }
+        if(!validateEmail(email)){
+            toast.error("Please enter correct email")
+        }
+        const userData = {
+            email,
+            password
+        }
+        await dispatch(login(userData))
     }
-
-    if (!validateEmail(email)) {
-      return toast.error("Please enter a valid email");
-    }
-    const userData = {
-      email,
-      password,
-    };
-    // console.log(userData);
-    await dispatch(login(userData));
-  };
-
-  useEffect(() => {
-    if (isLoggedIn && isSuccess) {
-      if (redirect === "cart") {
-        dispatch(
-          saveCartDB({
-            cartItems: JSON.parse(localStorage.getItem("cartItems")),
-          })
-        );
-        return navigate("/cart");
-      }
-      dispatch(getCartDB());
-      // navigate("/");
-      // window.location.reload();
-    }
-
-    dispatch(RESET_AUTH());
-  }, [isSuccess, isLoggedIn, navigate, dispatch, redirect]);
-
+    useEffect(()=>{
+        if(isSuccess && isLoggedIn){
+            navigate("/");
+        }
+        dispatch(RESET_AUTH())
+      },[isSuccess,isLoggedIn,dispatch,navigate])
+  
   return (
     <>
-      {isLoading && <Loader />}
-      <section className={`container ${styles.auth}`}>
-        <div className={styles.img}>
-          <img src={loginImg} alt="Login" width="400" />
-        </div>
-
-        <Card>
-          <div className={styles.form}>
-            <h2>Login</h2>
-
-            <form onSubmit={loginUser}>
-              <input
-                type="text"
-                placeholder="Email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <button type="submit" className="--btn --btn-primary --btn-block">
-                Login
-              </button>
-            </form>
-
-            <span className={styles.register}>
-              <p>Don't have an account?</p>
-              <Link to="/register">Register</Link>
-            </span>
-          </div>
-        </Card>
-      </section>
+    {isLoading && <Loader/>}
+    <section className={`container ${styles.auth}` }>
+         <div className={styles.img}>
+             <img src={loginImg} alt="login" width="400"/>
+         </div>
+         <Card>
+             <div className={styles.form}>
+                <h2>Login</h2>
+                <form >
+                <input 
+                   type="text"
+                   placeholder='email'
+                   name="email"
+                   value={email}
+                   onChange = {(e)=>setEmail(e.target.value)}
+                   required
+                />
+                <input 
+                     type="text"
+                     placeholder='password'
+                     value={password}
+                     name="password"
+                     onChange={(e)=>setPassword(e.target.value)}
+                 />
+                 <button onClick={loginUser} type="submit" className='--btn --btn-primary --btn-block'>Submit</button>
+                 </form>
+                 <span className={styles.register}>
+                    <p>Dont have an Account ?</p>
+                    <Link to="/register">Register</Link>
+                 </span>
+             </div>
+         </Card>
+         
+    </section>
     </>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

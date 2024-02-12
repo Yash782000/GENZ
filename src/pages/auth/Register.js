@@ -1,126 +1,115 @@
-import { useEffect, useState } from "react";
-import styles from "./auth.module.scss";
-import registerImg from "../../assets/register.png";
-import Card from "../../components/card/Card";
-import { Link, useNavigate } from "react-router-dom";
-import Loader from "../../components/loader/Loader";
-import { toast } from "react-toastify";
-import { useDispatch, useSelector } from "react-redux";
-import { validateEmail } from "../../redux/features/auth/authService";
-import { RESET_AUTH, register } from "../../redux/features/auth/authSlice";
-
-const initialState = {
-  name: "",
-  email: "",
-  password: "",
-  cPassword: "",
-};
-
+import React, { useEffect, useState } from 'react'
+import styles from "./auth.module.scss"
+import registerImg from  "../../assets/register.png"
+import { Link, useNavigate } from 'react-router-dom'
+import Card from '../../components/card/Card'
+import { validateEmail } from '../../utlis'
+import { useDispatch, useSelector } from 'react-redux'
+import { RESET_AUTH, register } from '../../redux/features/auth/authSlice'
+import {toast} from "react-toastify"
+import Loader from '../../components/loader/Loader'
+const initailValue = {
+    name:"",
+    email:"",
+    password:"",
+    cPassword:""
+}
 const Register = () => {
-  const [formData, setFormData] = useState(initialState);
-  const { name, email, password, cPassword } = formData;
+    const dispatch  = useDispatch();
+    const navigate = useNavigate();
+    const {isLoading,isLoggedIn,isSuccess} = useSelector((state)=>state.auth);
+    const [formData,setFormData] = useState(initailValue);
+    const {name,email,password,cPassword} = formData;
+    const handleInputChange = (e) =>{
+      const {name,value} = e.target;
+ 
+      setFormData({...formData,[name]:value})
 
-  const { isLoading, isLoggedIn, isSuccess, message } = useSelector(
-    (state) => state.auth
-  );
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const registerUser = async (e) => {
-    e.preventDefault();
-    if (!email || !password) {
-      return toast.error("All fields are required");
-    }
-    if (password.length < 6) {
-      return toast.error("Password must be up to 6 characters");
-    }
-    if (!validateEmail(email)) {
-      return toast.error("Please enter a valid email");
-    }
-    if (password !== cPassword) {
-      toast.error("Passwords do not match.");
-    }
-    const userData = {
-      name,
-      email,
-      password,
-    };
-
-    console.log(userData);
-    await dispatch(register(userData));
-  };
-
-  useEffect(() => {
-    if (isSuccess && isLoggedIn) {
-      navigate("/");
     }
 
-    dispatch(RESET_AUTH());
-  }, [isLoggedIn, isSuccess, dispatch, navigate]);
+    const registerdUser = async(e) =>{
+       e.preventDefault();
+       if(!email || !password){
+         return toast.error("All fileds are required")
+       }
+       if(password.length <6){
+        return toast.error("Password must be greater that 6 words")
+       }
+       if(!validateEmail(email)){
+        return toast.error("Pleasr enter a valid email address")
+       }
+       if(password !== cPassword){
+        return toast.error("Password do not match")
+       }
+
+       const userData = {
+        name,email,password
+       }
+       await dispatch(register(userData));
+    }
+
+    useEffect(()=>{
+      if(isSuccess && isLoggedIn){
+          navigate("/");
+      }
+      dispatch(RESET_AUTH())
+    },[isSuccess,isLoggedIn,dispatch,navigate])
 
   return (
+
     <>
-      {isLoading && <Loader />}
-      <section className={`container ${styles.auth}`}>
-        <Card>
-          <div className={styles.form}>
-            <h2>Register</h2>
-
-            <form onSubmit={registerUser}>
-              <input
+      {isLoading && <Loader/>}
+    <section className={`container ${styles.auth}` }>
+    
+    <Card>
+        <div className={styles.form}>
+           <h2>Register</h2>
+           <form >
+           <input 
+              type="text"
+              placeholder='Name'
+              value={name}
+              name="name"
+              onChange = {handleInputChange}
+              required
+           />
+           <input 
+              type="text"
+              placeholder='email'
+              name="email"
+              value={email}
+              onChange = {handleInputChange}
+              required
+           />
+           <input 
                 type="text"
-                placeholder="Name"
-                required
-                name="name"
-                value={name}
-                onChange={handleInputChange}
-              />
-              <input
-                type="text"
-                placeholder="Email"
-                required
-                name="email"
-                value={email}
-                onChange={handleInputChange}
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                required
-                name="password"
+                placeholder='password'
                 value={password}
+                name="password"
                 onChange={handleInputChange}
-              />
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                required
-                name="cPassword"
+            />
+            <input 
+                type="text"
+                placeholder='Cpassword'
                 value={cPassword}
+                name="cPassword"
                 onChange={handleInputChange}
-              />
-              <button type="submit" className="--btn --btn-primary --btn-block">
-                Register
-              </button>
+            />
+            <button onClick={registerdUser} type="submit" className='--btn --btn-primary --btn-block'>Submit</button>
             </form>
-
             <span className={styles.register}>
-              <p>Already an account?</p>
-              <Link to="/login">Login</Link>
+               <p>Already have an Account ?</p>
+               <Link to="/login">Login</Link>
             </span>
-          </div>
-        </Card>
-        <div className={styles.img}>
-          <img src={registerImg} alt="Register" width="400" />
         </div>
-      </section>
-    </>
-  );
-};
+    </Card>
+    <div className={styles.img}>
+        <img src={registerImg} alt="login" width="400"/>
+    </div>
+    
+</section>
+</>
+  )
+}
 
-export default Register;
+export default Register
