@@ -15,7 +15,7 @@ const Loader = () => {
   
 }
 
-export const spinner = ()=>{
+export const Spinner = ()=>{
     return(
         <div className='--center-all'>
             

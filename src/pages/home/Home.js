@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Slider from '../../components/slider/Slider'
 import HomeInfoBox from './HomeInfoBox'
 import "./Home.scss"
@@ -8,9 +8,11 @@ import CarouselItem from '../../components/corousel/CarouselItem'
 import ProductCarousel from '../../components/corousel/Carousel'
 import ProductCategory from './ProductCategory'
 import FooterLinks from '../../components/footer/FooterLinks'
+import { useDispatch, useSelector } from 'react-redux'
+import { getProduct } from '../../redux/features/product/ProductSlice'
 
 const PageHeading = ({heading,btnText}) =>{
-
+     
      return(
       <>
       <div className="--flex-between">
@@ -25,16 +27,55 @@ const PageHeading = ({heading,btnText}) =>{
      )
 }
 function Home() {
-  const productss = productData.map((item)=>(
+  const dispatch = useDispatch();
+     useEffect(()=>{
+      dispatch(getProduct());
+     },[dispatch])
+     const {products} = useSelector((state)=>state.product)
+     console.log(products);
+     const latest = products?.filter((product)=>{
+      return product.quantity >0;
+     })?.filter((product,index)=>index < 5)
+     const phones = products?.filter((product)=>{
+      return product.quantity >0;
+     })?.filter((product,index)=>product.category === "mobile phone")?.filter((product,index)=>index < 5)
+     console.log(phones);
+  const latestProduct = latest.map((item)=>(
     <div key={item.id}>
         <CarouselItem 
           name={item.name}
-          url ={item.imageurl}
+          url ={item.image[0]}
           price = {item.price}
           description={item.description}
+          product={item}
+          regularPrice={item.regularPrice}
         />
     </div>
   ))
+  const phoneProduct = phones.map((item)=>(
+    <div key={item.id}>
+        <CarouselItem 
+          name={item.name}
+          url ={item.image[0]}
+          price = {item.price}
+          description={item.description}
+          product={item}
+          regularPrice={item.regularPrice}
+        />
+    </div>
+  ))
+  /*const productss = productData.map((item)=>(
+    <div key={item.id}>
+        <CarouselItem 
+          name={item.name}
+          url ={item.image[0]}
+          price = {item.price}
+          regularPrice={item.regularPrice}
+          product={item}
+          description={item.description}
+        />
+    </div>
+  ))*/
   return (
     <>
     <Slider/>
@@ -42,7 +83,7 @@ function Home() {
       <div className='container'>
         <HomeInfoBox/>
         <PageHeading heading={"Latest Products"} btnText={"Shop Now"}/>
-        <ProductCarousel products={productss}/>
+        <ProductCarousel products={latestProduct}/>
       </div>
     </section>
     <section className='--bg-grey'>
@@ -54,7 +95,7 @@ function Home() {
     <section>
       <div className='container'>
         <PageHeading heading={"Mobile Phones"} btnText={"Shop Now"}/>
-        <ProductCarousel products={productss}/>
+        <ProductCarousel products={phoneProduct}/> 
       </div>
     </section>
     <FooterLinks/>

@@ -111,6 +111,65 @@ const authSlice = createSlice({
     state.message=action.payload;
     
   })
+  //get User
+  .addCase(getUser.pending,(state)=>{
+    state.isLoading = true;
+ })
+ .addCase(getUser.fulfilled,(state,action)=>{
+   state.isLoading = false;
+   state.isSuccess = true;
+   state.isLoggedIn= true;
+   state.user = action.payload
+   console.log(action.payload);
+  
+ })
+ .addCase(getUser.rejected,(state,action)=>{
+  state.isLoading = false;
+  state.isError = true;
+  state.message=action.payload;
+  toast.error(action.payload);
+  
+})
+ //updateUser
+ .addCase(updateUser.pending,(state)=>{
+  state.isLoading = true;
+})
+.addCase(updateUser.fulfilled,(state,action)=>{
+ state.isLoading = false;
+ state.isSuccess = true;
+ state.isLoggedIn= true;
+ state.user = action.payload
+ toast.success("User Changed Succesfully")
+ console.log(action.payload);
+
+})
+.addCase(updateUser.rejected,(state,action)=>{
+state.isLoading = false;
+state.isError = true;
+state.message=action.payload;
+toast.error(action.payload);
+
+})
+ //updatePhoto
+ .addCase(updatePhoto.pending,(state)=>{
+  state.isLoading = true;
+})
+.addCase(updatePhoto.fulfilled,(state,action)=>{
+ state.isLoading = false;
+ state.isSuccess = true;
+ state.isLoggedIn= true;
+ state.user = action.payload
+ toast.success("User Photo Changed")
+ console.log(action.payload);
+
+})
+.addCase(updatePhoto.rejected,(state,action)=>{
+state.isLoading = false;
+state.isError = true;
+state.message=action.payload;
+toast.error(action.payload);
+
+})
 
   }
 });
@@ -164,6 +223,57 @@ export const getLoginStatus = createAsyncThunk(
   }
 )
 
-export const {RESET_AUTH} = authSlice.actions
+// getUser
 
+export const  getUser = createAsyncThunk(
+  'auth/getUser',
+  async(_,thunkAPI)=>{
+    try{
+      return await authService.getUser();
+    }
+    catch(error){
+      const message = (
+        error.response && error.response.data && error.response.data.message
+      ) || error.message || error.toString();
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+//update User
+
+export const updateUser = createAsyncThunk(
+  "auth/updateUser",
+  async(userData,thunkAPI) =>{
+    try {
+      return await authService.updateUser(userData)
+    } catch (error) {
+      const message = (
+        error.response && error.response.data && error.response.data.message
+      ) || error.message || error.toString();
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+//update Photo
+export const updatePhoto = createAsyncThunk(
+  "auth/updatePhoto",
+  async(userData,thunkAPI) =>{
+    try {
+      return await authService.updatePhoto(userData)
+    } catch (error) {
+      const message = (
+        error.response && error.response.data && error.response.data.message
+      ) || error.message || error.toString();
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+
+export const {RESET_AUTH} = authSlice.actions;
+
+export const selectUser =  (state) =>state.auth.user;
+export const selectIsLoggedIn = (state) => state.auth.isLoggedIn;
 export default authSlice.reducer

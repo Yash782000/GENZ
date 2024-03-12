@@ -50,7 +50,7 @@ const Register = () => {
 
     useEffect(()=>{
       if(isSuccess && isLoggedIn){
-          navigate("/");
+          navigate("/login");
       }
       dispatch(RESET_AUTH())
     },[isSuccess,isLoggedIn,dispatch,navigate])

@@ -21,7 +21,7 @@ const FooterLinks = () => {
         </div>
     </section>
     <section className='footer-section'>
-        <div className='footer-section'>
+        <div className='container footer'>
              <div className='footer-logo'>
                 <img src={logoImg} alt="logo"/>
              </div>
